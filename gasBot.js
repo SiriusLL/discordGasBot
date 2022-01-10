@@ -1,6 +1,13 @@
 const { Client, Intents, Interaction } = require("discord.js");
 const axios = require("axios");
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({
+  intents: [
+    Intents.FLAGS.GUILDS,
+    ,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+  ],
+});
 require("dotenv").config();
 
 const gasPrices = {
@@ -9,6 +16,8 @@ const gasPrices = {
   safeLow: null,
   average: null,
 };
+
+// console.log("guilds", client.guilds);
 
 const getGas = () => {
   let gas;
@@ -21,7 +30,7 @@ const getGas = () => {
     .get(api)
     .then((res) => {
       console.log("statussss", res.status);
-      gasPrice = res.data;
+      const gasPrice = res.data;
       console.log(
         "Gas Price:\n",
         gasPrice.fastest / 10,
@@ -33,12 +42,14 @@ const getGas = () => {
       gas = `${gasPrices.fastest / 10} | ${gasPrices.fast / 10} | ${
         gasPrices.safeLow / 10
       } | ${gasPrices.average / 10}`;
-      if (res.status === 200) {
+      if (gasPrice && res.status === 200) {
         gasPrices.fastest = gasPrice.fastest;
         gasPrices.fast = gasPrice.fast;
         gasPrices.safeLow = gasPrice.safeLow;
         gasPrices.average = gasPrice.average;
       }
+      console.log("object", client.user);
+      client.user.setUsername("Gas-Bot");
       client.user.setActivity(
         `${gasPrices.fastest / 10} | ${gasPrices.fast / 10} | ${
           gasPrices.safeLow / 10
@@ -61,20 +72,20 @@ const getGas = () => {
 client.on("ready", () => {
   console.log(`BeepBop successfully started as ${client.user.tag} 🤖`);
   getGas();
-  setInterval(getGas, [30000]);
+  setInterval(getGas, 30000);
 });
 
-client.on("interactionCreate", async (msg) => {
+client.on("messageCreate", (msg) => {
   const action = "!gas";
-  if (!interaction.isCommand()) return;
-  if (interaction.commandName === action) {
-    msg.reply(
-      `Fastest: ${gasPrices.fastest / 10} gwei\nFast: ${
+  // if (Interaction.isCommand()) return;
+  if (msg.content === action) {
+    msg.reply({
+      content: `Fastest: ${gasPrices.fastest / 10} gwei\nFast: ${
         gasPrices.fast / 10
       } gwei\nAverage: ${gasPrices.average / 10} gwei\nSafe Low: ${
         gasPrices.safeLow / 10
-      } gwei`
-    );
+      } gwei`,
+    });
   }
 });
 
