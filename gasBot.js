@@ -1,8 +1,8 @@
 import DiscordBot, { Client, Intents } from "discord.js";
-// const axios = require("axios");
 import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
+
 const client = new Client({
   intents: [
     Intents.FLAGS.GUILDS,
@@ -11,7 +11,7 @@ const client = new Client({
     Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
   ],
 });
-// require("dotenv").config();
+
 const guildId = process.env.GUILD_ID;
 
 const gasPrices = {
@@ -21,27 +21,20 @@ const gasPrices = {
   average: null,
 };
 
-// console.log("guilds", client.guilds);
-
 const getGas = () => {
   let gas;
-  // const emoji = client.emojis.cache;
-  // const zap = client.emojis.cache.find((emoji) => console.log(emoji));
-  // console.log("zap", zap);
+
   const api = `https://data-api.defipulse.com/api/v1/egs/api/ethgasAPI.json?api-key=${process.env.DEFI_PULSE_KEY}`;
 
   axios
     .get(api)
     .then((res) => {
-      console.log("statussss", res.status);
+      console.log(`Status: ${res.status}`);
       const gasPrice = res.data;
       console.log(
-        "Gas Price:\n",
-        gasPrice.fastest / 10,
-        "|",
-        gasPrice.fast / 10,
-        "|",
-        gasPrice.safeLow / 10
+        `Gas Price:\n${gasPrice.fastest / 10} | ${gasPrice.fast / 10} | ${
+          gasPrice.safeLow / 10
+        }`
       );
       gas = `${gasPrices.fastest / 10} | ${gasPrices.fast / 10} | ${
         gasPrices.safeLow / 10
@@ -52,10 +45,10 @@ const getGas = () => {
         gasPrices.safeLow = gasPrice.safeLow;
         gasPrices.average = gasPrice.average;
       }
-      console.log("object", client.user);
+      // console.log("object", client.user);
       client.user.setUsername("Gas-Bot");
       client.user.setActivity(
-        `:fire: ${gasPrices.fastest / 10} | ${gasPrices.fast / 10} | ${
+        `${gasPrices.fastest / 10} | ${gasPrices.fast / 10} | ${
           gasPrices.safeLow / 10
         }`,
         { type: "WATCHING" }
